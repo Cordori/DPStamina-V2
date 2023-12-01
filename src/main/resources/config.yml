@@ -1,0 +1,113 @@
+# 调试选项
+Debug: false
+
+# 当前插件版本
+Version: '2.0.0'
+
+# 存储模式, SQLite 或者 MySQL ,默认SQLite本地存储，修改这个值需要重启
+Storage: 'SQLite'
+
+# 进服时同步数据延迟的时间，单位是ticks，默认50也就是2.5秒
+LoadDelay: 50
+
+# 每隔多少分钟保存一次数据到数据库，修改之后需要通过/dps task重载
+SaveTime: 5
+
+# 数据库设置
+MySQL:
+  host: localhost
+  port: 3306
+  username: root
+  password: root
+  fileName: DPStamina
+  tableName: playerdata
+  # MySQL5 使用: com.mysql.jdbc.Driver
+  # MySQL8 使用: com.mysql.cj.jdbc.Driver
+  driver: 'com.mysql.jdbc.Driver'
+  jdbc: '?useSSL=false&useUnicode=true&characterEncoding=utf8'
+
+# 通用门票，可进入任意副本。识别物品名，完全匹配。如果同时有特定门票和通用门票，会优先扣除特定门票
+UniversalTicket: '&a通用门票'
+
+# 是否允许离线后也恢复体力，修改完这个值建议重启
+Offline: true
+
+# 是否需要在特定区域才能恢复体力，这个设置只影响在线恢复，不影响离线恢复
+RegionRecover: false
+
+# 区域设置
+Regions:
+  # 请严格遵守以下格式，写错了我可不帮你检查，给你一顿嘎嘎报错
+  # 世界名;坐标A;坐标B
+  - 'world;100,0,100;-100,100,-100'
+  - 'sc;200,0,200;-200,100,-200'
+
+# 是否每日定时刷新体力恢复至上限
+Refresh: true
+
+# 定时刷新时间 从00:00到23:59，既是每日体力的刷新时间，也是每日/每周/每月次数的刷新时间
+RefreshTime: '05:00'
+
+# 每周几刷新每周挑战次数。1到7，但是，周日是1，周一是2，周二是3
+RefreshWeek: 2
+
+# 每月几号刷新每月挑战次数，小心不要出现写了31但是本月没有31号的情况，稳妥起见写个1号或者15号都行
+RefreshMonth: 1
+
+# 每隔多少分钟恢复一次体力，修改之后需要通过/dps task重载
+Minutes: 1
+
+# 体力组设置，越高级的组写在越上面
+Group:
+  # vip3组
+  vip3:
+    # 拥有该权限的玩家视为vip3组
+    perm: 'dpstamina.vip3'
+    # 体力上限
+    limit: 500
+    # 体力恢复量，支持变量，不支持计算，你可以使用math拓展
+    recover: '%player_health%'
+  # vip2组
+  vip2:
+    perm: 'dpstamina.vip2'
+    limit: 300
+    recover: "%player_level%"
+  # vip1组
+  vip1:
+    perm: 'dpstamina.vip1'
+    limit: 200
+    recover: 1
+  # 默认组名，不可重复，不能改名
+  default:
+    # 体力上限
+    limit: 100
+    recover: 0.5
+
+# 消息提示
+Messages:
+  reload: '&e[副本体力]&6插件配置重载成功！'
+  task: '&e[副本体力]&6任务重载成功！'
+  allNull: '&e[副本体力]&b副本&e %dungeon% &b的门票和体力设置已禁用，无法加入副本！'
+  give: '&e[副本体力]&b成功为玩家&6 %player% &b添加&e %num% &b点体力，当前体力为&e %stamina%'
+  take: '&e[副本体力]&c成功为玩家&6 %player% &c减少&e %num% &c点体力，当前体力为&e %stamina%'
+  set: '&e[副本体力]&b成功设置玩家&6 %player% &b体力为&e %num%'
+  join: '&e[副本体力]&b您已离线&e %min% &b分钟，共恢复&e %num% &b点体力，当前体力为&e %stamina%'
+  refresh: '&e[副本体力]&e体力每日刷新！已将您的体力恢复至上限！'
+  cost: '&e[副本体力]&b成功消耗&e %cost% &b点体力进入副本&e %dungeon%&b，剩余体力为&e %stamina%'
+  consume: '&e[副本体力]&b成功消耗一张 %ticket% &b进入副本&e %dungeon%'
+  noStamina: '&e[副本体力]&c对不起，玩家&6 %player% &c的体力不足！'
+  noTicket: '&e[副本体力]&c对不起，玩家&6 %player% &c缺少门票！'
+  noDayCount: '&e[副本体力]&c对不起，玩家&6 %player% &c当前副本 %dungeon% &c的每日挑战次数已耗尽！'
+  noWeekCount: '&e[副本体力]&c对不起，玩家&6 %player% &c当前副本 %dungeon% &c的每周挑战次数已耗尽！'
+  noMonthCount: '&e[副本体力]&c对不起，玩家&6 %player% &c当前副本 %dungeon% &c的每月挑战次数已耗尽！'
+  noLeader: '&e[副本体力]&c对不起，当前队伍无队长，无法开启副本！'
+  noData: '&e[副本体力]&c玩家&6 %player% &c数据未加载！请退出重新进入服务器！'
+  giveDayCount: '&e[副本体力]&b成功为玩家&6 %player% &b添加&e %value% &b次&e %dungeon% &b的每日挑战次数！'
+  takeDayCount: '&e[副本体力]&c成功为玩家&6 %player% &b减少&e %value% &b次&e %dungeon% &b的每日挑战次数！'
+  setDayCount: '&e[副本体力]&b成功设置玩家&6 %player% &b副本&e %dungeon% &b的当前已使用每日挑战次数为 %value%！'
+  giveWeekCount: '&e[副本体力]&b成功为玩家&6 %player% &b添加&e %value% &b次&e %dungeon% &b的每周挑战次数！'
+  takeWeekCount: '&e[副本体力]&c成功为玩家&6 %player% &b减少&e %value% &b次&e %dungeon% &b的每周挑战次数！'
+  setWeekCount: '&e[副本体力]&b成功设置玩家&6 %player% &b副本&e %dungeon% &b的当前已使用每周挑战次数为 %value%！'
+  giveMonthCount: '&e[副本体力]&b成功为玩家&6 %player% &b添加&e %value% &b次&e %dungeon% &b的每月挑战次数！'
+  takeMonthCount: '&e[副本体力]&c成功为玩家&6 %player% &b减少&e %value% &b次&e %dungeon% &b的每月挑战次数！'
+  setMonthCount: '&e[副本体力]&b成功设置玩家&6 %player% &b副本&e %dungeon% &b的当前已使用每月挑战次数为 %value%！'

@@ -1,0 +1,45 @@
+# 你可以选择全部都写一个文件里，也可以一个文件写一个
+# dp里的地图名，即节点名
+F1:
+  # 给地图设置的中文名,只是用于消息提示而已
+  mapName: '&a新手训练营'
+  # 消耗的体力，不写该配置则默认为0，不消耗体力，写-1的话会禁止使用体力进入副本
+  cost: 12
+  # 副本对应的特定门票，不写或留空则不检查特定门票和通用门票
+  ticket: '&a新手训练营门票'
+  # 是否允许使用通用门票进入，false的话就是持有通用门票进不去，不写默认true
+  # 但如果上面门票留空了，也不会检查通用门票
+  allowUniversal: true
+  # 每日挑战次数限制，默认是-1,就是不限制
+  dayLimit: 2
+  # 每周挑战次数限制，默认是-1，也就是不限制
+  weekLimit: 5
+  # 每月挑战次数限制，默认是-1，也就是不限制
+  monthLimit: 15
+
+F2:
+  mapName: '&b勇者之路'
+  cost: 20
+  ticket: ''
+  allowUniversal: false
+  dayLimit: 2
+  weekLimit: 5
+  monthLimit: 15
+
+F3:
+  mapName: '&8亡灵洞窟'
+  cost: -1
+  ticket: ''
+  allowUniversal: false
+  dayLimit: 5
+  weekLimit: 10
+  monthLimit: 30
+
+F4:
+  mapName: '&d第四副本'
+  cost: 20
+  ticket: '&d副本四门票'
+  allowUniversal: false
+  dayLimit: 2
+  weekLimit: 5
+  monthLimit: 15

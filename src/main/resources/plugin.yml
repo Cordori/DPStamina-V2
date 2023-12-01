@@ -1,0 +1,12 @@
+name: DPStamina
+version: '${project.version}'
+main: cordori.dpstamina.Main
+depend:
+  - DungeonPlus
+softdepend:
+  - PlaceholderAPI
+
+commands:
+  DPStamina:
+    permission: admin
+    aliases: [ dps ]
