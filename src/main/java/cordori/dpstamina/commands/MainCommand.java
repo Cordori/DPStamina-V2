@@ -231,17 +231,23 @@ public class MainCommand implements CommandExecutor, TabCompleter {
     private void modifyCount(CommandSender sender, String type, String action, String key, int value,
                              PlayerData playerData, String playerName, String customName) {
 
-        if(type.equalsIgnoreCase("give")) {
+        if(value < 0) {
+            sender.sendMessage("§e[副本体力]§c请输入大于等于0的数字！");
+            return;
+        }
 
+        if(type.equalsIgnoreCase("give")) {
             if(action.equalsIgnoreCase("dayCount")) {
                 int count = playerData.getMapCountMap().get(key).getDayCount();
                 int newCount = count - value;
                 if(newCount < 0) newCount = 0;
+                int limit = ConfigManager.mapMap.get(key).getDayLimit();
+                if(value > limit) value = limit;
                 playerData.getMapCountMap().get(key).setDayCount(newCount);
                 sender.sendMessage(ConfigManager.messagesMap.get("giveDayCount")
                         .replace("%player%", playerName)
                         .replace("%dungeon%", customName)
-                        .replace("%value%", String.valueOf(newCount))
+                        .replace("%value%", String.valueOf(value))
                 );
             }
 
@@ -249,11 +255,13 @@ public class MainCommand implements CommandExecutor, TabCompleter {
                 int count = playerData.getMapCountMap().get(key).getWeekCount();
                 int newCount = count - value;
                 if(newCount < 0) newCount = 0;
+                int limit = ConfigManager.mapMap.get(key).getWeekLimit();
+                if(value > limit) value = limit;
                 playerData.getMapCountMap().get(key).setWeekCount(newCount);
                 sender.sendMessage(ConfigManager.messagesMap.get("giveWeekCount")
                         .replace("%player%", playerName)
                         .replace("%dungeon%", customName)
-                        .replace("%value%", String.valueOf(newCount))
+                        .replace("%value%", String.valueOf(value))
                 );
             }
 
@@ -261,11 +269,13 @@ public class MainCommand implements CommandExecutor, TabCompleter {
                 int count = playerData.getMapCountMap().get(key).getMonthCount();
                 int newCount = count - value;
                 if(newCount < 0) newCount = 0;
+                int limit = ConfigManager.mapMap.get(key).getMonthLimit();
+                if(value > limit) value = limit;
                 playerData.getMapCountMap().get(key).setMonthCount(newCount);
                 sender.sendMessage(ConfigManager.messagesMap.get("giveMonthCount")
                         .replace("%player%", playerName)
                         .replace("%dungeon%", customName)
-                        .replace("%value%", String.valueOf(newCount))
+                        .replace("%value%", String.valueOf(value))
                 );
             }
 

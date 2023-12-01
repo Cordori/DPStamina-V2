@@ -140,7 +140,6 @@ public class PAPIHook extends PlaceholderExpansion {
             }
         }
 
-
         return null;
     }
 
