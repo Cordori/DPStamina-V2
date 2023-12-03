@@ -5,6 +5,7 @@ import cordori.dpstamina.objectManager.GroupData;
 import cordori.dpstamina.objectManager.MapOption;
 import cordori.dpstamina.objectManager.PlayerData;
 import cordori.dpstamina.objectManager.RegionData;
+import cordori.dpstamina.task.PermScheduler;
 import cordori.dpstamina.task.RefreshScheduler;
 import cordori.dpstamina.task.SQLScheduler;
 import cordori.dpstamina.task.StaminaScheduler;
@@ -128,6 +129,7 @@ public class ConfigManager {
         Bukkit.getScheduler().runTaskTimerAsynchronously(Main.inst, new StaminaScheduler(), 0L, 20L * 60L * ConfigManager.minutes);
         Bukkit.getScheduler().runTaskTimerAsynchronously(Main.inst, new SQLScheduler(), 0L, 20L * 60L * saveTime);
         Bukkit.getScheduler().runTaskTimerAsynchronously(Main.inst, new RefreshScheduler(), 0L, 20L * 60L);
+        Bukkit.getScheduler().runTaskTimerAsynchronously(Main.inst, new PermScheduler(), 0L, 50L);
     }
 
     /**

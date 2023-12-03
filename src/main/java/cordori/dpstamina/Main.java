@@ -7,6 +7,7 @@ import cordori.dpstamina.hook.PAPIHook;
 import cordori.dpstamina.listeners.DPListener;
 import cordori.dpstamina.listeners.JoinQuitListener;
 import cordori.dpstamina.objectManager.PlayerData;
+import cordori.dpstamina.utils.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -46,7 +47,7 @@ public final class Main extends JavaPlugin {
         Bukkit.getPluginCommand("DPStamina").setExecutor(new MainCommand());
         Bukkit.getPluginManager().registerEvents(new DPListener(), this);
         Bukkit.getPluginManager().registerEvents(new JoinQuitListener(), this);
-
+        Metrics metrics = new Metrics(this, 20424);
         getLogger().info("§b[DPStamina]§b插件加载完成！");
     }
 

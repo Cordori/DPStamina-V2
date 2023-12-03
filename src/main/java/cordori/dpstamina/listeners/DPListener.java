@@ -40,9 +40,13 @@ public class DPListener implements Listener {
         HashMap<UUID, ItemStack> takeTicketMap = new HashMap<>();
 
         // 如果无体力设置和门票设置就不用判断
-        boolean isNullTicket = (mapOption.getTicket().equals(""));
+        boolean isNullTicket = (mapOption.getTicket().isEmpty());
         double cost = mapOption.getCost();
         if(cost == 0 && isNullTicket) return;
+
+        int dayLimit = mapOption.getDayLimit();
+        int weekLimit = mapOption.getWeekLimit();
+        int monthLimit = mapOption.getMonthLimit();
 
         // 副本开始之前的检测
         if (event.getEvent() instanceof DungeonStartEvent.Before) {
@@ -57,9 +61,7 @@ public class DPListener implements Listener {
 
             String ticket = mapOption.getTicket();
 
-            int dayLimit = mapOption.getDayLimit();
-            int weekLimit = mapOption.getWeekLimit();
-            int monthLimit = mapOption.getMonthLimit();
+
 
             // 遍历队伍成员
             for(Player player : playerList) {
@@ -80,28 +82,34 @@ public class DPListener implements Listener {
                 int weekCount = mapCount.getWeekCount();
                 int monthCount = mapCount.getMonthCount();
 
-                if(dayCount >= dayLimit || weekCount >= weekLimit || monthCount >= monthLimit) {
-                    if(dayCount >= dayLimit) {
-                        team.sendTeamMessage(ConfigManager.messagesMap.get("noDayCount")
-                                .replace("%player%", playerName)
-                                .replace("%dungeon%", customName)
-                        );
-                    }
-                    if(weekCount >= weekLimit) {
-                        team.sendTeamMessage(ConfigManager.messagesMap.get("noWeekCount")
-                                .replace("%player%", playerName)
-                                .replace("%dungeon%", customName)
-                        );
-                    }
-                    if(monthCount >= monthLimit) {
-                        team.sendTeamMessage(ConfigManager.messagesMap.get("noMonthCount")
-                                .replace("%player%", playerName)
-                                .replace("%dungeon%", customName)
-                        );
-                    }
+                if(dayLimit != -1 && dayCount >= dayLimit) {
+                    team.sendTeamMessage(ConfigManager.messagesMap.get("noDayCount")
+                            .replace("%player%", playerName)
+                            .replace("%dungeon%", customName)
+                    );
                     event.setCancelled(true);
                     return;
                 }
+
+                if(weekLimit != -1 && weekCount >= weekLimit) {
+                    team.sendTeamMessage(ConfigManager.messagesMap.get("noWeekCount")
+                            .replace("%player%", playerName)
+                            .replace("%dungeon%", customName)
+                    );
+                    event.setCancelled(true);
+                    return;
+                }
+
+                if(monthLimit != -1 && monthCount >= monthLimit) {
+                    team.sendTeamMessage(ConfigManager.messagesMap.get("noMonthCount")
+                            .replace("%player%", playerName)
+                            .replace("%dungeon%", customName)
+                    );
+                    event.setCancelled(true);
+                    return;
+                }
+
+
 
                 // 如果没写门票配置，不用检查门票，判断体力就行了
                 if(isNullTicket) {
@@ -111,7 +119,7 @@ public class DPListener implements Listener {
                                 .replace("%dungeon%", customName));
                         event.setCancelled(true);
                         return;
-                    };
+                    }
 
                     double currentStamina = playerData.getStamina();
                     // 如果当前体力大于等于副本花费体力，加到扣除体力列表里
@@ -210,9 +218,9 @@ public class DPListener implements Listener {
 
                 // 消耗挑战次数
                 MapCount mapCount = playerData.getMapCountMap().get(dungeonName);
-                mapCount.setDayCount(mapCount.getDayCount()+1);
-                mapCount.setWeekCount(mapCount.getWeekCount()+1);
-                mapCount.setMonthCount(mapCount.getMonthCount()+1);
+                if(dayLimit != -1) mapCount.setDayCount(mapCount.getDayCount()+1);
+                if(weekLimit != -1) mapCount.setWeekCount(mapCount.getWeekCount()+1);
+                if(monthLimit != -1) mapCount.setMonthCount(mapCount.getMonthCount()+1);
                 playerData.getMapCountMap().replace(dungeonName, mapCount);
             }
         }

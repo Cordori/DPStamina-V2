@@ -10,6 +10,7 @@ import lombok.Getter;
 import lombok.SneakyThrows;
 import org.apache.commons.dbcp2.BasicDataSource;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 
 import java.sql.*;
 
@@ -138,6 +139,7 @@ public class SQLManager {
         CountProcess.strToCount(uuid, sb.toString());
     }
 
+
     @SneakyThrows
     public void saveData(UUID uuid, PlayerData playerData) {
         double stamina = playerData.getStamina();
@@ -159,6 +161,35 @@ public class SQLManager {
         updateStmt.setString(6, mapCount);
         updateStmt.setString(7, uuid.toString());
         updateStmt.executeUpdate();
+    }
+
+    @SneakyThrows
+    public void saveAllData() {
+        Connection conn = getConnection();
+        for(Player player : Bukkit.getOnlinePlayers()) {
+            UUID uuid = player.getUniqueId();
+            if(!ConfigManager.dataMap.containsKey(uuid)) continue;
+            PlayerData playerData = ConfigManager.dataMap.get(uuid);
+            double stamina = playerData.getStamina();
+            long offlineTime = System.currentTimeMillis();
+            int dayRecord = playerData.getDayRecord();
+            int weekRecord = playerData.getWeekRecord();
+            int monthRecord = playerData.getMonthRecord();
+            String mapCount = CountProcess.countToStr(uuid, "");
+            LogInfo.debug("[退服保存数据mapCount]" + mapCount);
+            String updateQuery = "UPDATE " + tableName + " SET stamina = ?, offlineTime = ?, dayRecord = ?," +
+                    " weekRecord = ?, monthRecord = ?, mapCount = ? WHERE uuid = ?";
+            @Cleanup PreparedStatement updateStmt = conn.prepareStatement(updateQuery);
+            updateStmt.setDouble(1, stamina);
+            updateStmt.setLong(2, offlineTime);
+            updateStmt.setInt(3, dayRecord);
+            updateStmt.setInt(4, weekRecord);
+            updateStmt.setInt(5, monthRecord);
+            updateStmt.setString(6, mapCount);
+            updateStmt.setString(7, uuid.toString());
+            updateStmt.executeUpdate();
+        }
+        conn.close();
     }
 
     @SneakyThrows

@@ -83,4 +83,5 @@ public class JoinQuitListener implements Listener {
             ConfigManager.dataMap.remove(uuid);
         });
     }
+
 }
