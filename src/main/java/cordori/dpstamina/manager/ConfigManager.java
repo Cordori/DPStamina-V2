@@ -1,10 +1,10 @@
-package cordori.dpstamina.dataManager;
+package cordori.dpstamina.manager;
 
 import cordori.dpstamina.Main;
-import cordori.dpstamina.objectManager.GroupData;
-import cordori.dpstamina.objectManager.MapOption;
-import cordori.dpstamina.objectManager.PlayerData;
-import cordori.dpstamina.objectManager.RegionData;
+import cordori.dpstamina.data.GroupData;
+import cordori.dpstamina.data.MapOption;
+import cordori.dpstamina.data.PlayerData;
+import cordori.dpstamina.data.RegionData;
 import cordori.dpstamina.task.PermScheduler;
 import cordori.dpstamina.task.RefreshScheduler;
 import cordori.dpstamina.task.SQLScheduler;
@@ -34,7 +34,7 @@ public class ConfigManager {
 
     public static HashMap<String, GroupData> groupMap = new HashMap<>();
     public static LinkedHashMap<String, String> permMap = new LinkedHashMap<>();
-    public static HashMap<String, String> messagesMap = new HashMap<>();
+    public static HashMap<String, String> msgMap = new HashMap<>();
     public static ConcurrentHashMap<UUID, PlayerData> dataMap = new ConcurrentHashMap<>();
     public static HashMap<String, MapOption> mapMap = new HashMap<>();
 
@@ -95,13 +95,13 @@ public class ConfigManager {
      * @param config 传入配置文件
      */
     public static void loadMessages(FileConfiguration config) {
-        messagesMap.clear();
+        msgMap.clear();
         Set<String> messages = config.getConfigurationSection("Messages").getKeys(false);
         LogInfo.debug("§d==========================");
         for(String key : messages) {
             String msg = config.getString("Messages." + key).replaceAll("&", "§");
             if(msg.equals("")) continue;
-            messagesMap.put(key, msg);
+            msgMap.put(key, msg);
             LogInfo.debug(key + ": " + msg);
         }
         LogInfo.debug("§d==========================");

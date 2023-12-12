@@ -1,11 +1,11 @@
 package cordori.dpstamina.task;
 
 
-import cordori.dpstamina.dataManager.ConfigManager;
+import cordori.dpstamina.manager.ConfigManager;
 import cordori.dpstamina.hook.PAPIHook;
-import cordori.dpstamina.objectManager.GroupData;
-import cordori.dpstamina.objectManager.PlayerData;
-import cordori.dpstamina.objectManager.RegionData;
+import cordori.dpstamina.data.GroupData;
+import cordori.dpstamina.data.PlayerData;
+import cordori.dpstamina.data.RegionData;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 

@@ -1,8 +1,8 @@
 package cordori.dpstamina.utils;
 
-import cordori.dpstamina.dataManager.ConfigManager;
-import cordori.dpstamina.objectManager.MapCount;
-import cordori.dpstamina.objectManager.PlayerData;
+import cordori.dpstamina.manager.ConfigManager;
+import cordori.dpstamina.data.MapCount;
+import cordori.dpstamina.data.PlayerData;
 
 import java.util.HashMap;
 import java.util.UUID;

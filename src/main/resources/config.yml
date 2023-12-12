@@ -2,7 +2,7 @@
 Debug: false
 
 # 当前插件版本
-Version: '2.0.0'
+Version: '2.0.1'
 
 # 存储模式, SQLite 或者 MySQL ,默认SQLite本地存储，修改这个值需要重启
 Storage: 'SQLite'

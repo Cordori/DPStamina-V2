@@ -2,7 +2,7 @@ package cordori.dpstamina.utils;
 
 
 import cordori.dpstamina.Main;
-import cordori.dpstamina.dataManager.ConfigManager;
+import cordori.dpstamina.manager.ConfigManager;
 
 public class LogInfo {
 

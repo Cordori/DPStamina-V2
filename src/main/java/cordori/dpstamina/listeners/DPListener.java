@@ -1,9 +1,9 @@
 package cordori.dpstamina.listeners;
 
-import cordori.dpstamina.dataManager.ConfigManager;
-import cordori.dpstamina.objectManager.MapCount;
-import cordori.dpstamina.objectManager.MapOption;
-import cordori.dpstamina.objectManager.PlayerData;
+import cordori.dpstamina.manager.ConfigManager;
+import cordori.dpstamina.data.MapCount;
+import cordori.dpstamina.data.MapOption;
+import cordori.dpstamina.data.PlayerData;
 import cordori.dpstamina.utils.LogInfo;
 
 import org.bukkit.Material;
@@ -52,7 +52,7 @@ public class DPListener implements Listener {
         if (event.getEvent() instanceof DungeonStartEvent.Before) {
             // 如果没有队长就禁止开始副本
             if(leader == null) {
-                team.sendTeamMessage(ConfigManager.messagesMap.get("noLeader"));
+                team.sendTeamMessage(ConfigManager.msgMap.get("noLeader"));
                 event.setCancelled(true);
                 return;
             }
@@ -70,7 +70,7 @@ public class DPListener implements Listener {
 
                 // 如果没有玩家数据，取消事件
                 if(!ConfigManager.dataMap.containsKey(uuid)) {
-                    team.sendTeamMessage(ConfigManager.messagesMap.get("noData").replace("%player%", playerName));
+                    team.sendTeamMessage(ConfigManager.msgMap.get("noData").replace("%player%", playerName));
                     event.setCancelled(true);
                     return;
                 }
@@ -83,7 +83,7 @@ public class DPListener implements Listener {
                 int monthCount = mapCount.getMonthCount();
 
                 if(dayLimit != -1 && dayCount >= dayLimit) {
-                    team.sendTeamMessage(ConfigManager.messagesMap.get("noDayCount")
+                    team.sendTeamMessage(ConfigManager.msgMap.get("noDayCount")
                             .replace("%player%", playerName)
                             .replace("%dungeon%", customName)
                     );
@@ -92,7 +92,7 @@ public class DPListener implements Listener {
                 }
 
                 if(weekLimit != -1 && weekCount >= weekLimit) {
-                    team.sendTeamMessage(ConfigManager.messagesMap.get("noWeekCount")
+                    team.sendTeamMessage(ConfigManager.msgMap.get("noWeekCount")
                             .replace("%player%", playerName)
                             .replace("%dungeon%", customName)
                     );
@@ -101,7 +101,7 @@ public class DPListener implements Listener {
                 }
 
                 if(monthLimit != -1 && monthCount >= monthLimit) {
-                    team.sendTeamMessage(ConfigManager.messagesMap.get("noMonthCount")
+                    team.sendTeamMessage(ConfigManager.msgMap.get("noMonthCount")
                             .replace("%player%", playerName)
                             .replace("%dungeon%", customName)
                     );
@@ -115,7 +115,7 @@ public class DPListener implements Listener {
                 if(isNullTicket) {
                     // 如果体力消耗为-1，不判断体力，直接不让进了
                     if(cost == -1) {
-                        team.sendTeamMessage(ConfigManager.messagesMap.get("allNull")
+                        team.sendTeamMessage(ConfigManager.msgMap.get("allNull")
                                 .replace("%dungeon%", customName));
                         event.setCancelled(true);
                         return;
@@ -126,7 +126,7 @@ public class DPListener implements Listener {
                     if(currentStamina >= cost) {
                         takeStaminaList.add(uuid);
                     } else {
-                        team.sendTeamMessage(ConfigManager.messagesMap.get("noStamina")
+                        team.sendTeamMessage(ConfigManager.msgMap.get("noStamina")
                                 .replace("%player%", playerName));
                         event.setCancelled(true);
                         return;
@@ -164,7 +164,7 @@ public class DPListener implements Listener {
                     if(!takeTicketMap.containsKey(uuid)) {
                         // 如果体力消耗为-1，直接终止
                         if(cost == -1) {
-                            team.sendTeamMessage(ConfigManager.messagesMap.get("noTicket")
+                            team.sendTeamMessage(ConfigManager.msgMap.get("noTicket")
                                     .replace("%player%", playerName));
                             event.setCancelled(true);
                             return;
@@ -174,9 +174,9 @@ public class DPListener implements Listener {
                         if(currentStamina >= cost) {
                             takeStaminaList.add(uuid);
                         } else {
-                            team.sendTeamMessage(ConfigManager.messagesMap.get("noTicket")
+                            team.sendTeamMessage(ConfigManager.msgMap.get("noTicket")
                                     .replace("%player%", playerName));
-                            team.sendTeamMessage(ConfigManager.messagesMap.get("noStamina")
+                            team.sendTeamMessage(ConfigManager.msgMap.get("noStamina")
                                     .replace("%player%", playerName));
                             event.setCancelled(true);
                             return;
@@ -194,7 +194,7 @@ public class DPListener implements Listener {
                 if(cost > 0 && takeStaminaList.contains(uuid)) {
                     double newStamina = playerData.getStamina() - cost;
                     playerData.setStamina(newStamina);
-                    player.sendMessage(ConfigManager.messagesMap.get("cost")
+                    player.sendMessage(ConfigManager.msgMap.get("cost")
                             .replace("%cost%", String.valueOf(cost))
                             .replace("%dungeon%", customName)
                             .replace("%stamina%", String.valueOf(newStamina))
@@ -207,7 +207,7 @@ public class DPListener implements Listener {
                     for(ItemStack item : player.getInventory().getContents()) {
                         if(item.equals(ticketItem)) {
                             item.setAmount(item.getAmount()-1);
-                            player.sendMessage(ConfigManager.messagesMap.get("consume")
+                            player.sendMessage(ConfigManager.msgMap.get("consume")
                                     .replace("%ticket%", item.getItemMeta().getDisplayName())
                                     .replace("%dungeon%", customName)
                                     );

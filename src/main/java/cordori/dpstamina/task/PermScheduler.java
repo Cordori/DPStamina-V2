@@ -1,7 +1,7 @@
 package cordori.dpstamina.task;
 
-import cordori.dpstamina.dataManager.ConfigManager;
-import cordori.dpstamina.objectManager.PlayerData;
+import cordori.dpstamina.manager.ConfigManager;
+import cordori.dpstamina.data.PlayerData;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 

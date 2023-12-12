@@ -1,4 +1,4 @@
-package cordori.dpstamina.objectManager;
+package cordori.dpstamina.data;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

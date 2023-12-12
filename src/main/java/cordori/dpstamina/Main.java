@@ -1,12 +1,13 @@
 package cordori.dpstamina;
 
-import cordori.dpstamina.commands.MainCommand;
-import cordori.dpstamina.dataManager.ConfigManager;
-import cordori.dpstamina.dataManager.SQLManager;
+import cordori.dpstamina.command.Command;
+import cordori.dpstamina.manager.ConfigManager;
+import cordori.dpstamina.manager.SQLManager;
 import cordori.dpstamina.hook.PAPIHook;
 import cordori.dpstamina.listeners.DPListener;
 import cordori.dpstamina.listeners.JoinQuitListener;
-import cordori.dpstamina.objectManager.PlayerData;
+import cordori.dpstamina.data.PlayerData;
+import cordori.dpstamina.utils.LogInfo;
 import cordori.dpstamina.utils.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -35,19 +36,19 @@ public final class Main extends JavaPlugin {
 
         ConfigManager.reloadMyConfig();
 
-        if(!getConfig().getString("Version").equalsIgnoreCase(getDescription().getVersion())) {
+        if(!getConfig().getString("Version").equals(getDescription().getVersion())) {
             getLogger().warning("§b[DPStamina]§e插件版本为:§a " + getDescription().getVersion());
             getLogger().warning("§b[DPStamina]§e当前配置版本为:§7 " + getConfig().getString("Version"));
-            getLogger().warning("§b[DPStamina]§e请更新插件！");
+            getLogger().warning("§b[DPStamina]§e建议更新插件！");
         }
 
         if(getConfig().getString("Storage").equalsIgnoreCase("MySQL")) MySQL = true;
         loadSQL();
 
-        Bukkit.getPluginCommand("DPStamina").setExecutor(new MainCommand());
+        Bukkit.getPluginCommand("DPStamina").setExecutor(new Command());
         Bukkit.getPluginManager().registerEvents(new DPListener(), this);
         Bukkit.getPluginManager().registerEvents(new JoinQuitListener(), this);
-        Metrics metrics = new Metrics(this, 20424);
+        new Metrics(this, 20424);
         getLogger().info("§b[DPStamina]§b插件加载完成！");
     }
 

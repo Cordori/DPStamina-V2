@@ -1,11 +1,10 @@
-package cordori.dpstamina.commands;
+package cordori.dpstamina.command;
 
 import cordori.dpstamina.Main;
-import cordori.dpstamina.dataManager.ConfigManager;
-import cordori.dpstamina.objectManager.PlayerData;
+import cordori.dpstamina.manager.ConfigManager;
+import cordori.dpstamina.data.PlayerData;
 
 import org.bukkit.Bukkit;
-import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
@@ -15,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class MainCommand implements CommandExecutor, TabCompleter {
+public class Command implements CommandExecutor, TabCompleter {
 
     private static final Main dps = Main.inst;
 
@@ -28,7 +27,7 @@ public class MainCommand implements CommandExecutor, TabCompleter {
     }
 
     @Override
-    public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+    public List<String> onTabComplete(CommandSender sender, org.bukkit.command.Command command, String alias, String[] args) {
         String latest = null;
         List<String> list = new ArrayList<>();
         if (args.length != 0) {
@@ -59,7 +58,7 @@ public class MainCommand implements CommandExecutor, TabCompleter {
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+    public boolean onCommand(CommandSender sender, org.bukkit.command.Command command, String label, String[] args) {
         Bukkit.getScheduler().runTaskAsynchronously(dps, () -> {
             if (args.length == 0) {
                 sender.sendMessage("§e[副本体力]§6==============================");
@@ -82,12 +81,12 @@ public class MainCommand implements CommandExecutor, TabCompleter {
 
             else if (args[0].equalsIgnoreCase("reload")) {
                 ConfigManager.reloadMyConfig();
-                sender.sendMessage(ConfigManager.messagesMap.get("reload"));
+                sender.sendMessage(ConfigManager.msgMap.get("reload"));
             }
 
             else if (args[0].equalsIgnoreCase("task")) {
                 ConfigManager.startTasks();
-                sender.sendMessage(ConfigManager.messagesMap.get("task"));
+                sender.sendMessage(ConfigManager.msgMap.get("task"));
             }
 
             else if (args[0].equalsIgnoreCase("help")) {
@@ -135,7 +134,7 @@ public class MainCommand implements CommandExecutor, TabCompleter {
                 }
                 UUID uuid = player.getUniqueId();
                 if(!ConfigManager.dataMap.containsKey(uuid)) {
-                    sender.sendMessage(ConfigManager.messagesMap.get("noData").replace("%player%", playerName));
+                    sender.sendMessage(ConfigManager.msgMap.get("noData").replace("%player%", playerName));
                     return;
                 }
                 PlayerData playerData = ConfigManager.dataMap.get(uuid);
@@ -147,7 +146,7 @@ public class MainCommand implements CommandExecutor, TabCompleter {
                         case "set":
                             double num = Math.min(number, limit);
                             if(number < 0) num = 0;
-                            String message1 = ConfigManager.messagesMap.get("set")
+                            String message1 = ConfigManager.msgMap.get("set")
                                     .replaceAll("%player%", playerName)
                                     .replaceAll("%num%", String.valueOf(num)
                                     );
@@ -163,7 +162,7 @@ public class MainCommand implements CommandExecutor, TabCompleter {
                             } else {
                                 ns = number;
                             }
-                            String message2 = ConfigManager.messagesMap.get("give")
+                            String message2 = ConfigManager.msgMap.get("give")
                                     .replaceAll("%player%", playerName)
                                     .replaceAll("%num%", String.valueOf(ns))
                                     .replaceAll("%stamina%", String.valueOf(newStamina)
@@ -180,7 +179,7 @@ public class MainCommand implements CommandExecutor, TabCompleter {
                             } else {
                                 rs = number;
                             }
-                            String message3 = ConfigManager.messagesMap.get("take")
+                            String message3 = ConfigManager.msgMap.get("take")
                                     .replaceAll("%player%", playerName)
                                     .replaceAll("%num%", String.valueOf(rs))
                                     .replaceAll("%stamina%", String.valueOf(reducedStamina)
@@ -246,7 +245,7 @@ public class MainCommand implements CommandExecutor, TabCompleter {
                 int limit = ConfigManager.mapMap.get(key).getDayLimit();
                 if(value > limit) value = limit;
                 playerData.getMapCountMap().get(key).setDayCount(newCount);
-                sender.sendMessage(ConfigManager.messagesMap.get("giveDayCount")
+                sender.sendMessage(ConfigManager.msgMap.get("giveDayCount")
                         .replace("%player%", playerName)
                         .replace("%dungeon%", customName)
                         .replace("%value%", String.valueOf(value))
@@ -260,7 +259,7 @@ public class MainCommand implements CommandExecutor, TabCompleter {
                 int limit = ConfigManager.mapMap.get(key).getWeekLimit();
                 if(value > limit) value = limit;
                 playerData.getMapCountMap().get(key).setWeekCount(newCount);
-                sender.sendMessage(ConfigManager.messagesMap.get("giveWeekCount")
+                sender.sendMessage(ConfigManager.msgMap.get("giveWeekCount")
                         .replace("%player%", playerName)
                         .replace("%dungeon%", customName)
                         .replace("%value%", String.valueOf(value))
@@ -274,7 +273,7 @@ public class MainCommand implements CommandExecutor, TabCompleter {
                 int limit = ConfigManager.mapMap.get(key).getMonthLimit();
                 if(value > limit) value = limit;
                 playerData.getMapCountMap().get(key).setMonthCount(newCount);
-                sender.sendMessage(ConfigManager.messagesMap.get("giveMonthCount")
+                sender.sendMessage(ConfigManager.msgMap.get("giveMonthCount")
                         .replace("%player%", playerName)
                         .replace("%dungeon%", customName)
                         .replace("%value%", String.valueOf(value))
@@ -291,7 +290,7 @@ public class MainCommand implements CommandExecutor, TabCompleter {
                 int newCount = count + value;
                 if(newCount > limit) newCount = limit;
                 playerData.getMapCountMap().get(key).setDayCount(newCount);
-                sender.sendMessage(ConfigManager.messagesMap.get("takeDayCount")
+                sender.sendMessage(ConfigManager.msgMap.get("takeDayCount")
                         .replace("%player%", playerName)
                         .replace("%dungeon%", customName)
                         .replace("%value%", String.valueOf(newCount))
@@ -304,7 +303,7 @@ public class MainCommand implements CommandExecutor, TabCompleter {
                 int newCount = count + value;
                 if(newCount > limit) newCount = limit;
                 playerData.getMapCountMap().get(key).setWeekCount(newCount);
-                sender.sendMessage(ConfigManager.messagesMap.get("takeWeekCount")
+                sender.sendMessage(ConfigManager.msgMap.get("takeWeekCount")
                         .replace("%player%", playerName)
                         .replace("%dungeon%", customName)
                         .replace("%value%", String.valueOf(newCount))
@@ -317,7 +316,7 @@ public class MainCommand implements CommandExecutor, TabCompleter {
                 int newCount = count + value;
                 if(newCount > limit) newCount = limit;
                 playerData.getMapCountMap().get(key).setMonthCount(newCount);
-                sender.sendMessage(ConfigManager.messagesMap.get("takeMonthCount")
+                sender.sendMessage(ConfigManager.msgMap.get("takeMonthCount")
                         .replace("%player%", playerName)
                         .replace("%dungeon%", customName)
                         .replace("%value%", String.valueOf(newCount))
@@ -332,7 +331,7 @@ public class MainCommand implements CommandExecutor, TabCompleter {
                 if(value > limit) value = limit;
                 if(value < 0) value = 0;
                 playerData.getMapCountMap().get(key).setDayCount(value);
-                sender.sendMessage(ConfigManager.messagesMap.get("setDayCount")
+                sender.sendMessage(ConfigManager.msgMap.get("setDayCount")
                         .replace("%player%", playerName)
                         .replace("%dungeon%", customName)
                         .replace("%value%", String.valueOf(value))
@@ -344,7 +343,7 @@ public class MainCommand implements CommandExecutor, TabCompleter {
                 if(value > limit) value = limit;
                 if(value < 0) value = 0;
                 playerData.getMapCountMap().get(key).setWeekCount(value);
-                sender.sendMessage(ConfigManager.messagesMap.get("setWeekCount")
+                sender.sendMessage(ConfigManager.msgMap.get("setWeekCount")
                         .replace("%player%", playerName)
                         .replace("%dungeon%", customName)
                         .replace("%value%", String.valueOf(value))
@@ -356,7 +355,7 @@ public class MainCommand implements CommandExecutor, TabCompleter {
                 if(value > limit) value = limit;
                 if(value < 0) value = 0;
                 playerData.getMapCountMap().get(key).setMonthCount(value);
-                sender.sendMessage(ConfigManager.messagesMap.get("setMonthCount")
+                sender.sendMessage(ConfigManager.msgMap.get("setMonthCount")
                         .replace("%player%", playerName)
                         .replace("%dungeon%", customName)
                         .replace("%value%", String.valueOf(value))

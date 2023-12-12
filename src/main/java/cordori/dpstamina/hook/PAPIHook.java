@@ -2,8 +2,8 @@ package cordori.dpstamina.hook;
 
 
 import cordori.dpstamina.Main;
-import cordori.dpstamina.dataManager.ConfigManager;
-import cordori.dpstamina.objectManager.PlayerData;
+import cordori.dpstamina.manager.ConfigManager;
+import cordori.dpstamina.data.PlayerData;
 import me.clip.placeholderapi.PlaceholderAPI;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.entity.Player;

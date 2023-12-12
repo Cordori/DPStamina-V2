@@ -1,7 +1,7 @@
-package cordori.dpstamina.dataManager;
+package cordori.dpstamina.manager;
 
 import cordori.dpstamina.Main;
-import cordori.dpstamina.objectManager.PlayerData;
+import cordori.dpstamina.data.PlayerData;
 import cordori.dpstamina.utils.CountProcess;
 
 import cordori.dpstamina.utils.LogInfo;
@@ -57,10 +57,10 @@ public class SQLManager {
                 + "uuid VARCHAR(255) PRIMARY KEY, "
                 + "stamina DOUBLE, "
                 + "offlineTime BIGINT, "
-                + "dayRecord DATE, "
+                + "dayRecord INT, "
                 + "weekRecord INT, "
                 + "monthRecord INT, "
-                + "mapCount VARCHAR)";
+                + "mapCount VARCHAR(10000))";
         statement.executeUpdate(query);
 
     }
@@ -122,20 +122,20 @@ public class SQLManager {
             sb.append(str);
         }
         LogInfo.debug("【首次加载数据mapCount】" + sb);
-
+        long offlineTime = System.currentTimeMillis();
         @Cleanup Connection conn = getConnection();
         String insertQuery = "INSERT INTO " + tableName + " (uuid, stamina, offlineTime, dayRecord, weekRecord, monthRecord, mapCount) VALUES (?, ?, ?, ?, ?, ?, ?)";
         PreparedStatement insertStmt = conn.prepareStatement(insertQuery);
         insertStmt.setString(1, uuid.toString());
         insertStmt.setDouble(2, limit);
-        insertStmt.setLong(3, System.currentTimeMillis());
+        insertStmt.setLong(3, offlineTime);
         insertStmt.setInt(4, dayRecord);
         insertStmt.setInt(5, weekRecord);
         insertStmt.setInt(6, monthRecord);
         insertStmt.setString(7, sb.toString());
         insertStmt.executeUpdate();
 
-        ConfigManager.dataMap.put(uuid, new PlayerData(limit, dayRecord, weekRecord, monthRecord, new HashMap<>()));
+        ConfigManager.dataMap.put(uuid, new PlayerData(limit, offlineTime, dayRecord, weekRecord, monthRecord, new HashMap<>()));
         CountProcess.strToCount(uuid, sb.toString());
     }
 
@@ -171,7 +171,7 @@ public class SQLManager {
             if(!ConfigManager.dataMap.containsKey(uuid)) continue;
             PlayerData playerData = ConfigManager.dataMap.get(uuid);
             double stamina = playerData.getStamina();
-            long offlineTime = System.currentTimeMillis();
+            final long offlineTime = System.currentTimeMillis();
             int dayRecord = playerData.getDayRecord();
             int weekRecord = playerData.getWeekRecord();
             int monthRecord = playerData.getMonthRecord();
