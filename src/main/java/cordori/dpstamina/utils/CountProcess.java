@@ -3,6 +3,8 @@ package cordori.dpstamina.utils;
 import cordori.dpstamina.manager.ConfigManager;
 import cordori.dpstamina.data.MapCount;
 import cordori.dpstamina.data.PlayerData;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 
 import java.util.HashMap;
 import java.util.UUID;
@@ -16,6 +18,7 @@ public class CountProcess {
 
         if(mapCountMap.isEmpty()) return s;
         StringBuilder sb = new StringBuilder();
+
         for(String key : mapCountMap.keySet()) {
             MapCount mapCount = mapCountMap.get(key);
 
@@ -34,6 +37,7 @@ public class CountProcess {
             String str = key + "," + dayCount + "," + weeCount + "," + monthCount + ";";
             sb.append(str);
         }
+
         sb.deleteCharAt(sb.length()-1);
         LogInfo.debug("count转为字符串: " + sb);
         return sb.toString();
@@ -51,11 +55,7 @@ public class CountProcess {
             String[] counts = string.split(",");
             String key = counts[0];
             if (!mapCountMap.containsKey(key)) {
-                MapCount mapCount = new MapCount();
-                mapCount.setDayCount(0);
-                mapCount.setWeekCount(0);
-                mapCount.setMonthCount(0);
-                playerData.getMapCountMap().put(key, mapCount);
+                playerData.getMapCountMap().put(key, new MapCount(0, 0, 0));
                 continue;
             }
 
@@ -74,6 +74,29 @@ public class CountProcess {
             LogInfo.debug("dayCount为: " + dayCount);
             LogInfo.debug("weekCount为: " + weekCount);
             LogInfo.debug("monthCount为: " + monthCount);
+        }
+    }
+
+    public static void reloadAllCount() {
+        for(Player player : Bukkit.getOnlinePlayers()) {
+            UUID uuid = player.getUniqueId();
+            if(!ConfigManager.dataMap.containsKey(uuid)) continue;
+            PlayerData playerData = ConfigManager.dataMap.get(uuid);
+            HashMap<String, MapCount> mapCountMap = playerData.getMapCountMap();
+            for(String key : ConfigManager.mapMap.keySet()) {
+                if(mapCountMap.containsKey(key)) continue;
+                mapCountMap.put(key, new MapCount(0,0,0));
+            }
+        }
+    }
+
+    public static void reloadCount(UUID uuid) {
+        if(!ConfigManager.dataMap.containsKey(uuid)) return;
+        PlayerData playerData = ConfigManager.dataMap.get(uuid);
+        HashMap<String, MapCount> mapCountMap = playerData.getMapCountMap();
+        for(String key : ConfigManager.mapMap.keySet()) {
+            if(mapCountMap.containsKey(key)) continue;
+            mapCountMap.put(key, new MapCount(0,0,0));
         }
     }
 }

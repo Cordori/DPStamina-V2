@@ -4,6 +4,7 @@ import cordori.dpstamina.Main;
 import cordori.dpstamina.manager.ConfigManager;
 import cordori.dpstamina.data.PlayerData;
 
+import cordori.dpstamina.utils.CountProcess;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -81,6 +82,7 @@ public class Command implements CommandExecutor, TabCompleter {
 
             else if (args[0].equalsIgnoreCase("reload")) {
                 ConfigManager.reloadMyConfig();
+                CountProcess.reloadAllCount();
                 sender.sendMessage(ConfigManager.msgMap.get("reload"));
             }
 

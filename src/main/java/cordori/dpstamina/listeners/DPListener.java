@@ -24,8 +24,9 @@ import java.util.UUID;
 
 public class DPListener implements Listener {
 
-    @EventHandler(priority = EventPriority.LOWEST)
+    @EventHandler(priority = EventPriority.HIGH)
     public void onEnterDP(DungeonEvent event) {
+        if(event.isCancelled()) return;
         // 没有该地图的配置就不处理
         String dungeonName = event.getDungeon().getDungeonName();
 
@@ -75,9 +76,14 @@ public class DPListener implements Listener {
                     return;
                 }
                 PlayerData playerData = ConfigManager.dataMap.get(uuid);
+                HashMap<String, MapCount> mapCountMap = playerData.getMapCountMap();
 
                 // 先判断次数
-                MapCount mapCount = playerData.getMapCountMap().get(dungeonName);
+                if(!mapCountMap.containsKey(dungeonName)) {
+                    mapCountMap.put(dungeonName,  new MapCount(0, 0, 0));
+                }
+                MapCount mapCount = mapCountMap.get(dungeonName);
+
                 int dayCount = mapCount.getDayCount();
                 int weekCount = mapCount.getWeekCount();
                 int monthCount = mapCount.getMonthCount();

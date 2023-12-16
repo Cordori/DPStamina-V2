@@ -5,6 +5,7 @@ import cordori.dpstamina.manager.SQLManager;
 import cordori.dpstamina.data.GroupData;
 import cordori.dpstamina.data.PlayerData;
 import cordori.dpstamina.utils.CountProcess;
+import cordori.dpstamina.utils.LogInfo;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -25,12 +26,18 @@ public class RefreshScheduler implements Runnable {
         Calendar calendar = Calendar.getInstance();
         int dayOfMonth = calendar.get(Calendar.DAY_OF_MONTH);
 
+        LogInfo.debug("dayRecord: " + dayRecord);
+        LogInfo.debug("dayOfMonth: " + dayOfMonth);
+
         if (dayOfMonth != dayRecord) {
             LocalTime currentTime = LocalTime.now().truncatedTo(ChronoUnit.MINUTES);
             LocalTime refreshTime = LocalTime.parse(ConfigManager.refreshTime);
 
+            LogInfo.debug("currentTime: " + currentTime);
+            LogInfo.debug("refreshTime: " + refreshTime);
+
             // 如果当前时间超过刷新时间
-            if (currentTime.isAfter(refreshTime)) {
+            if (currentTime.equals(refreshTime) || currentTime.isAfter(refreshTime)) {
                 // 如果开启每日刷新体力
                 if(ConfigManager.refresh) {
                     double stamina = playerData.getStamina();
@@ -47,6 +54,7 @@ public class RefreshScheduler implements Runnable {
                     }
                 }
                 // 刷新每日次数
+                playerData.setDayRecord(dayOfMonth);
                 CountProcess.countToStr(uuid, "day");
                 SQLManager.sql.refreshData(uuid, "dayRecord", dayRecord);
 
@@ -55,6 +63,7 @@ public class RefreshScheduler implements Runnable {
                 int weekOfMonth = calendar.get(Calendar.WEEK_OF_MONTH);
                 int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
                 if(weekOfMonth != weekRecord && dayOfWeek >= ConfigManager.refreshWeek) {
+                    playerData.setWeekRecord(dayOfWeek);
                     CountProcess.countToStr(uuid, "week");
                     SQLManager.sql.refreshData(uuid, "weekRecord", weekOfMonth);
                 }
@@ -64,6 +73,7 @@ public class RefreshScheduler implements Runnable {
                 int monthRecord = playerData.getMonthRecord();
                 int currentDayOfMonth = calendar.get(Calendar.DAY_OF_MONTH);
                 if(monthRecord != currentMonth && currentDayOfMonth >= ConfigManager.refreshMonth) {
+                    playerData.setMonthRecord(currentMonth);
                     CountProcess.countToStr(uuid, "month");
                     SQLManager.sql.refreshData(uuid, "monthRecord", currentMonth);
                 }
