@@ -9,7 +9,6 @@ import cordori.dpstamina.data.PlayerData;
 import cordori.dpstamina.task.RefreshScheduler;
 import cordori.dpstamina.utils.CountProcess;
 
-import cordori.dpstamina.utils.LogInfo;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -93,7 +92,6 @@ public class JoinQuitListener implements Listener {
                     playerData.setStamina(newStamina);
                 }
             }
-            LogInfo.debug(ConfigManager.dataMap.get(uuid).getMapCountMap().toString());
         }, ConfigManager.loadDelay);
 
 

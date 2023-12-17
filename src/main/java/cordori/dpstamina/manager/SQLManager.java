@@ -94,8 +94,7 @@ public class SQLManager {
 
     @SneakyThrows
     public void insertNewData(UUID uuid) {
-        String group = ConfigManager.getGroup(Bukkit.getPlayer(uuid));
-        double limit = ConfigManager.groupMap.get(group).getLimit();
+        double limit = ConfigManager.groupMap.get("default").getLimit();
         Calendar calendar = Calendar.getInstance();
         int dayOfMonth = calendar.get(Calendar.DAY_OF_MONTH);
         LocalTime currentTime = LocalTime.now().truncatedTo(ChronoUnit.MINUTES);
