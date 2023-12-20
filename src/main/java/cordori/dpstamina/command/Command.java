@@ -66,6 +66,7 @@ public class Command implements CommandExecutor, TabCompleter {
                 sender.sendMessage("§e[副本体力]§b/dps help - 查看指令与描述");
                 sender.sendMessage("§e[副本体力]§b/dps reload - 重载插件配置");
                 sender.sendMessage("§e[副本体力]§b/dps task - 重置定时任务");
+                sender.sendMessage("§e[副本体力]§b/dps refresh - 刷新所有在线玩家体力至上限");
 
                 sender.sendMessage("§e[副本体力]§b/dps give 玩家名称 数值 - 给予玩家体力值");
                 sender.sendMessage("§e[副本体力]§b/dps take 玩家名称 数值 - 扣除玩家体力值");

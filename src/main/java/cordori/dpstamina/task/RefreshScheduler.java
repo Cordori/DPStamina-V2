@@ -16,7 +16,6 @@ import java.util.*;
 
 public class RefreshScheduler implements Runnable {
 
-
     public static void refresh(Player player) {
         UUID uuid = player.getUniqueId();
         PlayerData playerData = ConfigManager.dataMap.get(uuid);
@@ -56,7 +55,7 @@ public class RefreshScheduler implements Runnable {
                 // 刷新每日次数
                 playerData.setDayRecord(dayOfMonth);
                 CountProcess.countToStr(uuid, "day");
-                SQLManager.sql.refreshData(uuid, "dayRecord", dayRecord);
+                SQLManager.sql.refreshData(uuid, "dayRecord", dayOfMonth);
 
                 // 刷新每周次数
                 int weekRecord = playerData.getWeekRecord();

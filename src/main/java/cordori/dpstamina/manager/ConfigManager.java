@@ -58,6 +58,7 @@ public class ConfigManager {
         loadMessages(config);
         loadRegions(config);
 
+        mapMap.clear();
         File folder = new File(Main.inst.getDataFolder() + "/mapOptions");
         findAllYmlFiles(folder);
 
@@ -158,7 +159,6 @@ public class ConfigManager {
      * @param config 对应的配置文件
      */
     private static void loadMapOptions(YamlConfiguration config) {
-        mapMap.clear();
         Set<String> set = config.getKeys(false);
         LogInfo.debug("§e==========================");
         for(String key : set) {
