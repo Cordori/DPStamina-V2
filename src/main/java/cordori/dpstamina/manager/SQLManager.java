@@ -101,7 +101,7 @@ public class SQLManager {
         LocalTime refreshTime = LocalTime.parse(ConfigManager.refreshTime);
 
         int dayRecord = 0;
-        if (currentTime.isAfter(refreshTime)) dayRecord = dayOfMonth;
+        if (currentTime.isAfter(refreshTime) || currentTime.equals(refreshTime)) dayRecord = dayOfMonth;
 
         int weekRecord = 0;
         int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
@@ -112,7 +112,7 @@ public class SQLManager {
         if(dayOfMonth >= ConfigManager.refreshMonth) monthRecord = currentMonth;
 
         StringBuilder sb = new StringBuilder();
-        LogInfo.debug("【首次加载数据mapMap】" + ConfigManager.mapMap);
+
         for(String key : ConfigManager.mapMap.keySet()) {
             int dayCount = 0;
             int weeCount = 0;
@@ -120,6 +120,7 @@ public class SQLManager {
             String str = key + "," + dayCount + "," + weeCount + "," + monthCount + ";";
             sb.append(str);
         }
+        sb.deleteCharAt(sb.length()-1);
         LogInfo.debug("【首次加载数据mapCount】" + sb);
         long offlineTime = System.currentTimeMillis();
         @Cleanup Connection conn = getConnection();

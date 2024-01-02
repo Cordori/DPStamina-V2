@@ -17,8 +17,6 @@ import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
-import java.util.HashMap;
-import java.util.List;
 import java.util.UUID;
 
 public class JoinQuitListener implements Listener {
@@ -27,23 +25,7 @@ public class JoinQuitListener implements Listener {
     public void onPlayerPreJoin(AsyncPlayerPreLoginEvent event) {
         Bukkit.getScheduler().runTaskLaterAsynchronously(Main.inst, () -> {
             UUID uuid = event.getUniqueId();
-            // 从数据库拉取数据
-            List<Object> objectList = SQLManager.sql.getData(uuid);
-            if(objectList == null) {
-                SQLManager.sql.insertNewData(uuid);
-                return;
-            }
-            Double newStamina;
-            Double stamina = (Double) objectList.get(0);
-            long lastTime = (long) objectList.get(1);
-            int dayRecord = (int) objectList.get(2);
-            int weekRecord = (int) objectList.get(3);
-            int monthRecord = (int) objectList.get(4);
-            String mapCountStr = (String) objectList.get(5);
-            newStamina = stamina;
-            ConfigManager.dataMap.put(uuid, new PlayerData(newStamina, lastTime, dayRecord, weekRecord, monthRecord, new HashMap<>()));
-            CountProcess.strToCount(uuid, mapCountStr);
-            CountProcess.reloadCount(uuid);
+            CountProcess.loadData(uuid);
         }, ConfigManager.loadDelay);
     }
 
@@ -53,8 +35,7 @@ public class JoinQuitListener implements Listener {
             Player player = event.getPlayer();
             UUID uuid = player.getUniqueId();
             if(!ConfigManager.dataMap.containsKey(uuid)) {
-                player.sendMessage(ConfigManager.msgMap.get("noData").replace("%player%", player.getName()));
-                return;
+                CountProcess.loadData(uuid);
             }
 
             PlayerData playerData = ConfigManager.dataMap.get(uuid);

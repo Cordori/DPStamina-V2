@@ -3,10 +3,12 @@ package cordori.dpstamina.utils;
 import cordori.dpstamina.manager.ConfigManager;
 import cordori.dpstamina.data.MapCount;
 import cordori.dpstamina.data.PlayerData;
+import cordori.dpstamina.manager.SQLManager;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.UUID;
 
 public class CountProcess {
@@ -25,10 +27,13 @@ public class CountProcess {
             switch (s) {
                 case "day":
                     mapCount.setDayCount(0);
+                    break;
                 case "week":
                     mapCount.setWeekCount(0);
+                    break;
                 case "month":
                     mapCount.setMonthCount(0);
+                    break;
             }
 
             int dayCount = mapCount.getDayCount();
@@ -53,23 +58,18 @@ public class CountProcess {
 
         for (String string : strings) {
             String[] counts = string.split(",");
-            String key = counts[0];
-            if (!mapCountMap.containsKey(key)) {
-                playerData.getMapCountMap().put(key, new MapCount(0, 0, 0));
-                continue;
-            }
 
+            String key = counts[0];
             int dayCount = Integer.parseInt(counts[1]);
             int weekCount = Integer.parseInt(counts[2]);
             int monthCount = Integer.parseInt(counts[3]);
 
-            MapCount mapCount = mapCountMap.get(key);
-            mapCount.setDayCount(dayCount);
-            mapCount.setWeekCount(weekCount);
-            mapCount.setMonthCount(monthCount);
+            MapCount mapCount = new MapCount(dayCount, weekCount, monthCount);
+            mapCountMap.put(key, mapCount);
 
             playerData.setMapCountMap(mapCountMap);
 
+            LogInfo.debug("-----------------------------");
             LogInfo.debug("key为: " + key);
             LogInfo.debug("dayCount为: " + dayCount);
             LogInfo.debug("weekCount为: " + weekCount);
@@ -94,9 +94,33 @@ public class CountProcess {
         if(!ConfigManager.dataMap.containsKey(uuid)) return;
         PlayerData playerData = ConfigManager.dataMap.get(uuid);
         HashMap<String, MapCount> mapCountMap = playerData.getMapCountMap();
+
         for(String key : ConfigManager.mapMap.keySet()) {
             if(mapCountMap.containsKey(key)) continue;
             mapCountMap.put(key, new MapCount(0,0,0));
         }
+        playerData.setMapCountMap(mapCountMap);
+
+    }
+
+    public static void loadData(UUID uuid) {
+        // 从数据库拉取数据
+        List<Object> objectList = SQLManager.sql.getData(uuid);
+        if(objectList == null) {
+            SQLManager.sql.insertNewData(uuid);
+            return;
+        }
+
+        Double newStamina;
+        Double stamina = (Double) objectList.get(0);
+        long lastTime = (long) objectList.get(1);
+        int dayRecord = (int) objectList.get(2);
+        int weekRecord = (int) objectList.get(3);
+        int monthRecord = (int) objectList.get(4);
+        String mapCountStr = (String) objectList.get(5);
+        newStamina = stamina;
+        ConfigManager.dataMap.put(uuid, new PlayerData(newStamina, lastTime, dayRecord, weekRecord, monthRecord, new HashMap<>()));
+        strToCount(uuid, mapCountStr);
+        reloadCount(uuid);
     }
 }

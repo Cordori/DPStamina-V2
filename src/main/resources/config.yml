@@ -2,7 +2,7 @@
 Debug: false
 
 # 当前插件版本
-Version: '2.0.5'
+Version: '${project.version}'
 
 # 存储模式, SQLite 或者 MySQL ,默认SQLite本地存储，修改这个值需要重启
 Storage: 'SQLite'
@@ -101,7 +101,7 @@ Messages:
   noWeekCount: '&e[副本体力]&c对不起，玩家&6 %player% &c当前副本 %dungeon% &c的每周挑战次数已耗尽！'
   noMonthCount: '&e[副本体力]&c对不起，玩家&6 %player% &c当前副本 %dungeon% &c的每月挑战次数已耗尽！'
   noLeader: '&e[副本体力]&c对不起，当前队伍无队长，无法开启副本！'
-  noData: '&e[副本体力]&c玩家&6 %player% &c数据未加载！请退出重新进入服务器！'
+  noData: '&e[副本体力]&c未找到玩家&6 %player% &c数据！已重新加载！请重新尝试操作！'
   giveDayCount: '&e[副本体力]&b成功为玩家&6 %player% &b添加&e %value% &b次&e %dungeon% &b的每日挑战次数！'
   takeDayCount: '&e[副本体力]&c成功为玩家&6 %player% &b减少&e %value% &b次&e %dungeon% &b的每日挑战次数！'
   setDayCount: '&e[副本体力]&b成功设置玩家&6 %player% &b副本&e %dungeon% &b的当前已使用每日挑战次数为 %value%！'

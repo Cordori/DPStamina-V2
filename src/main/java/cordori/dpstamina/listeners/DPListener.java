@@ -1,11 +1,14 @@
 package cordori.dpstamina.listeners;
 
+import cordori.dpstamina.Main;
 import cordori.dpstamina.manager.ConfigManager;
 import cordori.dpstamina.data.MapCount;
 import cordori.dpstamina.data.MapOption;
 import cordori.dpstamina.data.PlayerData;
+import cordori.dpstamina.utils.CountProcess;
 import cordori.dpstamina.utils.LogInfo;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -23,55 +26,61 @@ import java.util.List;
 import java.util.UUID;
 
 public class DPListener implements Listener {
+    public static HashMap<UUID, List<UUID>> takeStaminaMap = new HashMap<>();
+    public static HashMap<UUID, HashMap<UUID, ItemStack>> takeTicketMap = new HashMap<>();
 
     @EventHandler(priority = EventPriority.HIGH)
     public void onEnterDP(DungeonEvent event) {
         if(event.isCancelled()) return;
         // 没有该地图的配置就不处理
         String dungeonName = event.getDungeon().getDungeonName();
-
+        LogInfo.debug("当前副本节点名: " + dungeonName);
         if (!ConfigManager.mapMap.containsKey(dungeonName)) return;
 
-        Player leader = event.getDungeon().getTeam().getLeaderPlayer();
         MapOption mapOption = ConfigManager.mapMap.get(dungeonName);
-        String customName = mapOption.getMapName();
-        Team team = event.getDungeon().getTeam();
-        List<Player> playerList = team.getPlayers(PlayerStateType.ALL);
-        List<UUID> takeStaminaList = new ArrayList<>();
-        HashMap<UUID, ItemStack> takeTicketMap = new HashMap<>();
-
-        // 如果无体力设置和门票设置就不用判断
-        boolean isNullTicket = (mapOption.getTicket().isEmpty());
         double cost = mapOption.getCost();
-        if(cost == 0 && isNullTicket) return;
-
+        String customName = mapOption.getMapName();
         int dayLimit = mapOption.getDayLimit();
         int weekLimit = mapOption.getWeekLimit();
         int monthLimit = mapOption.getMonthLimit();
+        LogInfo.debug("当前副本的dayLimit:" + dayLimit);
+        LogInfo.debug("当前副本的weekLimit:" + weekLimit);
+        LogInfo.debug("当前副本的monthLimit:" + monthLimit);
+
+        Team team = event.getDungeon().getTeam();
+        if(team.leader == null) {
+            team.sendTeamMessage(ConfigManager.msgMap.get("noLeader"));
+            event.setCancelled(true);
+            return;
+        }
+        UUID leaderUUID = team.leader;
+        List<Player> playerList = team.getPlayers(PlayerStateType.ALL);
+
 
         // 副本开始之前的检测
         if (event.getEvent() instanceof DungeonStartEvent.Before) {
-            // 如果没有队长就禁止开始副本
-            if(leader == null) {
-                team.sendTeamMessage(ConfigManager.msgMap.get("noLeader"));
-                event.setCancelled(true);
-                return;
-            }
+            long startTime = System.currentTimeMillis();
 
+            boolean isNullTicket = (mapOption.getTicket().isEmpty());
             boolean allowUniversal = mapOption.isAllowUniversal();
-
             String ticket = mapOption.getTicket();
 
-
+            List<UUID> staminaList = new ArrayList<>();
+            HashMap<UUID, ItemStack> ticketMap = new HashMap<>();
 
             // 遍历队伍成员
             for(Player player : playerList) {
                 String playerName = player.getName();
+                LogInfo.debug("--------------------------");
+                LogInfo.debug("当前检测玩家为: " + playerName);
                 UUID uuid = player.getUniqueId();
 
                 // 如果没有玩家数据，取消事件
                 if(!ConfigManager.dataMap.containsKey(uuid)) {
-                    team.sendTeamMessage(ConfigManager.msgMap.get("noData").replace("%player%", playerName));
+                    Bukkit.getScheduler().runTaskAsynchronously(Main.inst, () -> {
+                        CountProcess.loadData(uuid);
+                        team.sendTeamMessage(ConfigManager.msgMap.get("noData").replace("%player%", playerName));
+                    });
                     event.setCancelled(true);
                     return;
                 }
@@ -87,6 +96,9 @@ public class DPListener implements Listener {
                 int dayCount = mapCount.getDayCount();
                 int weekCount = mapCount.getWeekCount();
                 int monthCount = mapCount.getMonthCount();
+                LogInfo.debug("玩家当前副本的dayCount:" + dayCount);
+                LogInfo.debug("玩家当前副本的weekCount:" + weekCount);
+                LogInfo.debug("玩家当前副本的monthCount:" + monthCount);
 
                 if(dayLimit != -1 && dayCount >= dayLimit) {
                     team.sendTeamMessage(ConfigManager.msgMap.get("noDayCount")
@@ -115,29 +127,33 @@ public class DPListener implements Listener {
                     return;
                 }
 
-
+                double currentStamina = playerData.getStamina();
+                LogInfo.debug("副本消耗体力: " + cost);
+                LogInfo.debug("玩家当前体力: " + currentStamina);
 
                 // 如果没写门票配置，不用检查门票，判断体力就行了
                 if(isNullTicket) {
                     // 如果体力消耗为-1，不判断体力，直接不让进了
-                    if(cost == -1) {
+                    if(cost <= -1) {
                         team.sendTeamMessage(ConfigManager.msgMap.get("allNull")
                                 .replace("%dungeon%", customName));
                         event.setCancelled(true);
                         return;
                     }
 
-                    double currentStamina = playerData.getStamina();
-                    // 如果当前体力大于等于副本花费体力，加到扣除体力列表里
-                    if(currentStamina >= cost) {
-                        takeStaminaList.add(uuid);
-                    } else {
-                        team.sendTeamMessage(ConfigManager.msgMap.get("noStamina")
-                                .replace("%player%", playerName));
-                        event.setCancelled(true);
-                        return;
+                    if(cost > 0) {
+                        if(currentStamina >= cost) {
+                            staminaList.add(uuid);
+                        } else {
+                            team.sendTeamMessage(ConfigManager.msgMap.get("noStamina")
+                                    .replace("%player%", playerName));
+                            event.setCancelled(true);
+                            return;
+                        }
                     }
+
                 } else {
+
                     // 遍历物品栏检查门票
                     for(ItemStack item : player.getInventory().getContents()) {
                         // 该物品没有自定义名称就跳过
@@ -149,55 +165,74 @@ public class DPListener implements Listener {
                         if (allowUniversal) {
                             // 如果有专票，那添加的物品就是专票
                             if (name.equals(ticket)) {
-                                takeTicketMap.put(uuid, item);
+                                ticketMap.put(uuid, item);
                                 LogInfo.debug("这是允许通票的专票");
                                 break;
                             }
                             // 如果有通票
                             else if (name.equals(ConfigManager.universalTicket)) {
-                                takeTicketMap.put(uuid, item);
+                                ticketMap.put(uuid, item);
                                 LogInfo.debug("这是通票");
                             }
 
                         } else if (name.equals(ticket)) {
-                            takeTicketMap.put(uuid, item);
+                            ticketMap.put(uuid, item);
                             LogInfo.debug("这是专票");
                             break;
                         }
                     }
 
                     // 如果玩家没有门票，判断是否有体力
-                    if(!takeTicketMap.containsKey(uuid)) {
+                    if(!ticketMap.containsKey(uuid)) {
                         // 如果体力消耗为-1，直接终止
-                        if(cost == -1) {
+                        if(cost <= -1) {
                             team.sendTeamMessage(ConfigManager.msgMap.get("noTicket")
                                     .replace("%player%", playerName));
                             event.setCancelled(true);
                             return;
                         }
-                        double currentStamina = playerData.getStamina();
+
                         // 如果当前体力大于等于副本花费体力，加到扣除体力列表里
-                        if(currentStamina >= cost) {
-                            takeStaminaList.add(uuid);
-                        } else {
-                            team.sendTeamMessage(ConfigManager.msgMap.get("noTicket")
-                                    .replace("%player%", playerName));
-                            team.sendTeamMessage(ConfigManager.msgMap.get("noStamina")
-                                    .replace("%player%", playerName));
-                            event.setCancelled(true);
-                            return;
+                        if(cost > 0) {
+                            if(currentStamina >= cost) {
+                                staminaList.add(uuid);
+                            } else {
+                                team.sendTeamMessage(ConfigManager.msgMap.get("noTicket")
+                                        .replace("%player%", playerName));
+                                team.sendTeamMessage(ConfigManager.msgMap.get("noStamina")
+                                        .replace("%player%", playerName));
+                                event.setCancelled(true);
+                                return;
+                            }
                         }
                     }
                 }
             }
+            LogInfo.debug("扣体力列表: " + staminaList);
+            LogInfo.debug("扣门票列表: " + ticketMap);
+            takeStaminaMap.put(leaderUUID, staminaList);
+            takeTicketMap.put(leaderUUID, ticketMap);
+
+            long finishTime = System.currentTimeMillis();
+            long time = finishTime - startTime;
+            LogInfo.debug("加入前的判断耗时: " + time + "ms");
         }
 
-        if(event.getEvent() instanceof DungeonStartEvent.Before) {
+
+
+        if(event.getEvent() instanceof DungeonStartEvent.After) {
+            long startTime = System.currentTimeMillis();
+            List<UUID> staminaList = takeStaminaMap.get(leaderUUID);
+            HashMap<UUID, ItemStack> ticketMap = takeTicketMap.get(leaderUUID);
+
             for(Player player : playerList) {
+                String playerName = player.getName();
+                LogInfo.debug("--------------------------");
+                LogInfo.debug("当前检测玩家为: " + playerName);
                 UUID uuid = player.getUniqueId();
                 PlayerData playerData = ConfigManager.dataMap.get(uuid);
-                // 扣除体力
-                if(cost > 0 && takeStaminaList.contains(uuid)) {
+
+                if(cost > 0 && staminaList.contains(uuid)) {
                     double newStamina = playerData.getStamina() - cost;
                     playerData.setStamina(newStamina);
                     player.sendMessage(ConfigManager.msgMap.get("cost")
@@ -208,8 +243,8 @@ public class DPListener implements Listener {
                 }
 
                 // 扣除门票
-                if(takeTicketMap.containsKey(uuid)) {
-                    ItemStack ticketItem = takeTicketMap.get(uuid);
+                if(ticketMap.containsKey(uuid)) {
+                    ItemStack ticketItem = ticketMap.get(uuid);
                     for(ItemStack item : player.getInventory().getContents()) {
                         if(item.equals(ticketItem)) {
                             item.setAmount(item.getAmount()-1);
@@ -224,11 +259,17 @@ public class DPListener implements Listener {
 
                 // 消耗挑战次数
                 MapCount mapCount = playerData.getMapCountMap().get(dungeonName);
-                if(dayLimit != -1) mapCount.setDayCount(mapCount.getDayCount()+1);
-                if(weekLimit != -1) mapCount.setWeekCount(mapCount.getWeekCount()+1);
-                if(monthLimit != -1) mapCount.setMonthCount(mapCount.getMonthCount()+1);
-                playerData.getMapCountMap().replace(dungeonName, mapCount);
+                if(dayLimit > 0) mapCount.setDayCount(mapCount.getDayCount()+1);
+                if(weekLimit > 0) mapCount.setWeekCount(mapCount.getWeekCount()+1);
+                if(monthLimit > 0) mapCount.setMonthCount(mapCount.getMonthCount()+1);
             }
+
+            takeStaminaMap.remove(leaderUUID);
+            takeTicketMap.remove(leaderUUID);
+
+            long finishTime = System.currentTimeMillis();
+            long time = finishTime - startTime;
+            LogInfo.debug("加入后的扣除耗时: " + time + "ms");
         }
     }
 }
