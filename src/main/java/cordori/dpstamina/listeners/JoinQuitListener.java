@@ -9,11 +9,11 @@ import cordori.dpstamina.data.PlayerData;
 import cordori.dpstamina.task.RefreshScheduler;
 import cordori.dpstamina.utils.CountProcess;
 
+import cordori.dpstamina.utils.LogInfo;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
@@ -22,25 +22,13 @@ import java.util.UUID;
 public class JoinQuitListener implements Listener {
 
     @EventHandler
-    public void onPlayerPreJoin(AsyncPlayerPreLoginEvent event) {
-        Bukkit.getScheduler().runTaskLaterAsynchronously(Main.inst, () -> {
-            UUID uuid = event.getUniqueId();
-            CountProcess.loadData(uuid);
-        }, ConfigManager.loadDelay);
-    }
-
-    @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         Bukkit.getScheduler().runTaskLaterAsynchronously(Main.inst, () -> {
             Player player = event.getPlayer();
             UUID uuid = player.getUniqueId();
-            if(!ConfigManager.dataMap.containsKey(uuid)) {
-                CountProcess.loadData(uuid);
-            }
+            CountProcess.loadData(uuid);
 
             PlayerData playerData = ConfigManager.dataMap.get(uuid);
-            // 判断一下是否刷新
-            RefreshScheduler.refresh(player);
 
             // 如果开启了离线回复，计算回复量后存入PlayerData
             if(ConfigManager.offline) {
@@ -73,6 +61,13 @@ public class JoinQuitListener implements Listener {
                     playerData.setStamina(newStamina);
                 }
             }
+
+            // 判断一下是否刷新
+            RefreshScheduler.refresh(player);
+
+            LogInfo.debug("刷新后的stamina: " + playerData.getStamina());
+            LogInfo.debug("dataMap是否有玩家数据: " + ConfigManager.dataMap.containsKey(uuid));
+
         }, ConfigManager.loadDelay);
 
 

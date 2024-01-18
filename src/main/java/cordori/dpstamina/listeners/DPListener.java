@@ -35,18 +35,8 @@ public class DPListener implements Listener {
         // 没有该地图的配置就不处理
         String dungeonName = event.getDungeon().getDungeonName();
         LogInfo.debug("当前副本节点名: " + dungeonName);
-        if (!ConfigManager.mapMap.containsKey(dungeonName)) return;
-
-        MapOption mapOption = ConfigManager.mapMap.get(dungeonName);
-        double cost = mapOption.getCost();
-        String customName = mapOption.getMapName();
-        int dayLimit = mapOption.getDayLimit();
-        int weekLimit = mapOption.getWeekLimit();
-        int monthLimit = mapOption.getMonthLimit();
-        LogInfo.debug("当前副本的dayLimit:" + dayLimit);
-        LogInfo.debug("当前副本的weekLimit:" + weekLimit);
-        LogInfo.debug("当前副本的monthLimit:" + monthLimit);
-
+        double cost;
+        cost = ConfigManager.defaultCost;
         Team team = event.getDungeon().getTeam();
         if(team.leader == null) {
             team.sendTeamMessage(ConfigManager.msgMap.get("noLeader"));
@@ -55,6 +45,59 @@ public class DPListener implements Listener {
         }
         UUID leaderUUID = team.leader;
         List<Player> playerList = team.getPlayers(PlayerStateType.ALL);
+
+        // 对于没有配置的单独检测
+        if (!ConfigManager.mapMap.containsKey(dungeonName)) {
+            if(cost <= 0) return;
+            if (event.getEvent() instanceof DungeonStartEvent.Before) {
+                for(Player player : playerList) {
+                    UUID uuid = player.getUniqueId();
+                    String playerName = player.getName();
+                    // 如果没有玩家数据，取消事件
+                    if(!ConfigManager.dataMap.containsKey(uuid)) {
+                        Bukkit.getScheduler().runTaskAsynchronously(Main.inst, () -> {
+                            CountProcess.loadData(uuid);
+                            team.sendTeamMessage(ConfigManager.msgMap.get("noData").replace("%player%", playerName));
+                        });
+                        event.setCancelled(true);
+                        return;
+                    }
+                    PlayerData playerData = ConfigManager.dataMap.get(uuid);
+                    double stamina = playerData.getStamina();
+                    if(stamina < cost) {
+                        team.sendTeamMessage(ConfigManager.msgMap.get("noStamina")
+                                .replace("%player%", playerName));
+                        event.setCancelled(true);
+                        return;
+                    }
+                }
+            }
+
+            if (event.getEvent() instanceof DungeonStartEvent.After) {
+                for(Player player : playerList) {
+                    UUID uuid = player.getUniqueId();
+                    PlayerData playerData = ConfigManager.dataMap.get(uuid);
+                    double newStamina = playerData.getStamina() - cost;
+                    playerData.setStamina(newStamina);
+                    player.sendMessage(ConfigManager.msgMap.get("cost")
+                            .replace("%cost%", String.valueOf(cost))
+                            .replace("%dungeon%", dungeonName)
+                            .replace("%stamina%", String.valueOf(newStamina))
+                    );
+                }
+            }
+            return;
+        }
+
+        MapOption mapOption = ConfigManager.mapMap.get(dungeonName);
+        cost = mapOption.getCost();
+        String customName = mapOption.getMapName();
+        int dayLimit = mapOption.getDayLimit();
+        int weekLimit = mapOption.getWeekLimit();
+        int monthLimit = mapOption.getMonthLimit();
+        LogInfo.debug("当前副本的dayLimit:" + dayLimit);
+        LogInfo.debug("当前副本的weekLimit:" + weekLimit);
+        LogInfo.debug("当前副本的monthLimit:" + monthLimit);
 
 
         // 副本开始之前的检测
@@ -234,12 +277,12 @@ public class DPListener implements Listener {
 
                 if(cost > 0 && staminaList.contains(uuid)) {
                     double newStamina = playerData.getStamina() - cost;
-                    playerData.setStamina(newStamina);
                     player.sendMessage(ConfigManager.msgMap.get("cost")
                             .replace("%cost%", String.valueOf(cost))
                             .replace("%dungeon%", customName)
                             .replace("%stamina%", String.valueOf(newStamina))
                     );
+                    playerData.setStamina(newStamina);
                 }
 
                 // 扣除门票
@@ -247,11 +290,11 @@ public class DPListener implements Listener {
                     ItemStack ticketItem = ticketMap.get(uuid);
                     for(ItemStack item : player.getInventory().getContents()) {
                         if(item.equals(ticketItem)) {
-                            item.setAmount(item.getAmount()-1);
                             player.sendMessage(ConfigManager.msgMap.get("consume")
                                     .replace("%ticket%", item.getItemMeta().getDisplayName())
                                     .replace("%dungeon%", customName)
                                     );
+                            item.setAmount(item.getAmount()-1);
                             break;
                         }
                     }

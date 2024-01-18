@@ -27,6 +27,7 @@ public class RefreshScheduler implements Runnable {
 
         LogInfo.debug("dayRecord: " + dayRecord);
         LogInfo.debug("dayOfMonth: " + dayOfMonth);
+        LogInfo.debug("stamina: " + playerData.getStamina());
 
         if (dayOfMonth != dayRecord) {
             LocalTime currentTime = LocalTime.now().truncatedTo(ChronoUnit.MINUTES);

@@ -25,6 +25,7 @@ public class ConfigManager {
     public static int loadDelay;
     public static String universalTicket;
     public static boolean offline;
+    public static double defaultCost;
     public static boolean regionRecover;
     public static boolean refresh;
     public static String refreshTime;
@@ -47,6 +48,7 @@ public class ConfigManager {
         loadDelay = config.getInt("LoadDelay");
         universalTicket= config.getString("UniversalTicket").replaceAll("&", "§");
         offline = config.getBoolean("Offline");
+        defaultCost = config.getDouble("DefaultCost", 0);
         regionRecover = config.getBoolean("RegionRecover");
         refresh = config.getBoolean("Refresh");
         refreshTime = config.getString("RefreshTime");

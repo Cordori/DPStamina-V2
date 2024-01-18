@@ -122,5 +122,11 @@ public class CountProcess {
         ConfigManager.dataMap.put(uuid, new PlayerData(newStamina, lastTime, dayRecord, weekRecord, monthRecord, new HashMap<>()));
         strToCount(uuid, mapCountStr);
         reloadCount(uuid);
+
+        LogInfo.debug("stamina: " + newStamina);
+        LogInfo.debug("offlineTime: " + lastTime);
+        LogInfo.debug("dayRecord: " + dayRecord);
+        LogInfo.debug("weekRecord: " + weekRecord);
+        LogInfo.debug("monthRecord: " + monthRecord);
     }
 }
