@@ -192,6 +192,7 @@ public class ConfigManager {
      * @return 返回玩家的体力组
      */
     public static String getGroup(Player player) {
+        if(permMap.isEmpty()) return "default";
         for (String perm : permMap.keySet()) {
             if(perm.equals("dpstamina.default")) return "default";
             else if(player.hasPermission(perm)) {

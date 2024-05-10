@@ -16,6 +16,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
 import org.serverct.ersha.dungeon.common.api.event.DungeonEvent;
+import org.serverct.ersha.dungeon.common.api.event.dungeon.DungeonEndEvent;
 import org.serverct.ersha.dungeon.common.api.event.dungeon.DungeonStartEvent;
 import org.serverct.ersha.dungeon.common.team.Team;
 import org.serverct.ersha.dungeon.common.team.type.PlayerStateType;
@@ -72,6 +73,7 @@ public class DPListener implements Listener {
                     }
                 }
             }
+
 
             if (event.getEvent() instanceof DungeonStartEvent.After) {
                 for(Player player : playerList) {
@@ -289,6 +291,8 @@ public class DPListener implements Listener {
                 if(ticketMap.containsKey(uuid)) {
                     ItemStack ticketItem = ticketMap.get(uuid);
                     for(ItemStack item : player.getInventory().getContents()) {
+                        if(item == null || item.getType() == Material.AIR ||
+                                !item.hasItemMeta() || !item.getItemMeta().hasDisplayName()) continue;
                         if(item.equals(ticketItem)) {
                             player.sendMessage(ConfigManager.msgMap.get("consume")
                                     .replace("%ticket%", item.getItemMeta().getDisplayName())

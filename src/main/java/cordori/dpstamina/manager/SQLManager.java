@@ -95,7 +95,8 @@ public class SQLManager {
     @SneakyThrows
     public void insertNewData(UUID uuid) {
         Player player = Bukkit.getPlayer(uuid);
-        String group = ConfigManager.getGroup(player);
+        String group = "default";
+        if(player != null) group = ConfigManager.getGroup(player);
         double limit = ConfigManager.groupMap.get(group).getLimit();
         Calendar calendar = Calendar.getInstance();
         int dayOfMonth = calendar.get(Calendar.DAY_OF_MONTH);
