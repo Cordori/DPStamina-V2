@@ -7,7 +7,6 @@ import cordori.dpstamina.hook.PAPIHook;
 import cordori.dpstamina.listeners.DPListener;
 import cordori.dpstamina.listeners.JoinQuitListener;
 import cordori.dpstamina.data.PlayerData;
-import cordori.dpstamina.utils.LogInfo;
 import cordori.dpstamina.utils.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;

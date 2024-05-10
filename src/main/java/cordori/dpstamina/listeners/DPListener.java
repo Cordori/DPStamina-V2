@@ -1,6 +1,7 @@
 package cordori.dpstamina.listeners;
 
 import cordori.dpstamina.Main;
+import cordori.dpstamina.events.StaminaChangeEvent;
 import cordori.dpstamina.manager.ConfigManager;
 import cordori.dpstamina.data.MapCount;
 import cordori.dpstamina.data.MapOption;
@@ -16,7 +17,6 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
 import org.serverct.ersha.dungeon.common.api.event.DungeonEvent;
-import org.serverct.ersha.dungeon.common.api.event.dungeon.DungeonEndEvent;
 import org.serverct.ersha.dungeon.common.api.event.dungeon.DungeonStartEvent;
 import org.serverct.ersha.dungeon.common.team.Team;
 import org.serverct.ersha.dungeon.common.team.type.PlayerStateType;
@@ -276,8 +276,10 @@ public class DPListener implements Listener {
                 LogInfo.debug("当前检测玩家为: " + playerName);
                 UUID uuid = player.getUniqueId();
                 PlayerData playerData = ConfigManager.dataMap.get(uuid);
+                StaminaChangeEvent sce = StaminaChangeEvent.callEvent(player, cost);
 
-                if(cost > 0 && staminaList.contains(uuid)) {
+                if(!sce.isCancelled() && cost > 0 && staminaList.contains(uuid)) {
+                    cost = sce.getCost();
                     double newStamina = playerData.getStamina() - cost;
                     player.sendMessage(ConfigManager.msgMap.get("cost")
                             .replace("%cost%", String.valueOf(cost))
